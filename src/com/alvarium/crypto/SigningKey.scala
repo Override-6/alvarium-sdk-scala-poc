@@ -1,6 +1,6 @@
-package com.alvarium.signing
+package com.alvarium.crypto
 
-import com.alvarium.signing
+import com.alvarium.crypto
 import com.alvarium.utils.hexToBytes
 
 import java.nio.charset.StandardCharsets

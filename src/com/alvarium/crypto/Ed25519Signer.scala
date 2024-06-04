@@ -1,4 +1,4 @@
-package com.alvarium.signing
+package com.alvarium.crypto
 
 import com.alvarium.utils.bytesToHex
 import com.google.crypto.tink.PublicKeySign

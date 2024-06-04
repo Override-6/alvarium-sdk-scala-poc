@@ -1,6 +1,6 @@
 package com.alvarium.config
 
-import com.alvarium.signing.SigningKey
+import com.alvarium.crypto.SigningKey
 
 
 enum SigningType {

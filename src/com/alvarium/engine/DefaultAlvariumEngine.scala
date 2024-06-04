@@ -1,10 +1,9 @@
 package com.alvarium.engine
 
 import com.alvarium.annotation.{Annotation, AnnotationBundle, SignedAnnotationBundle}
-import com.alvarium.checker.{CheckType, CheckerProps, CheckerPropsBounds, EnvironmentChecker, NoProps}
+import com.alvarium.checker.*
 import com.alvarium.config.EngineConfig
 
-import java.security.MessageDigest
 import java.time.ZonedDateTime
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -41,8 +40,7 @@ class DefaultAlvariumEngine(config: EngineConfig) extends AlvariumEngine {
         checkerCasted.test(checkerProps).map(v => Annotation(tpe, v))
     }
     val hashFuture = Future {
-      new String(MessageDigest.getInstance("SHA-256")
-        .digest(data))
+      new String(hasher.digest(data))
     }
 
     val annotations = Await.result(annotationsFuture, Duration.Inf)

@@ -11,6 +11,8 @@ given checkTypeCodec: JsonValueCodec[CheckType] = new JsonValueCodec[CheckType]:
   override def decodeValue(in: JsonReader, default: CheckType): CheckType = throw new UnsupportedOperationException("Deserialization is not supported")
 
   override def nullValue: CheckType = throw new UnsupportedOperationException("CheckType cannot be null")
+  
+
 given signedBundleCodec: JsonValueCodec[SignedAnnotationBundle] = JsonCodecMaker.make
 
 class JsoniterSerializer extends AnnotationBundleSerializer {

@@ -1,4 +1,4 @@
-package com.alvarium.signing
+package com.alvarium.crypto
 
 trait Signer {
 
