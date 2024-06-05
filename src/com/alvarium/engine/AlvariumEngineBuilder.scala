@@ -1,6 +1,6 @@
 package com.alvarium.engine
 
-import com.alvarium.checker.{CheckType, CheckerProps, EnvironmentChecker}
+import com.alvarium.checker.{CheckerProps, EnvironmentChecker}
 import com.alvarium.config.*
 import com.alvarium.crypto.{Ed25519Signer, Hasher}
 import com.alvarium.serialisation.{AnnotationBundleSerializer, JsoniterSerializer}
@@ -19,8 +19,12 @@ abstract class AlvariumEngineBuilder {
 
   private val checkers = ListBuffer.empty[RegisteredChecker]
 
-  final def addCheck(tpe: CheckType, checker: EnvironmentChecker[? <: CheckerProps], alias: Option[String] = None) = {
-    checkers += RegisteredChecker(tpe, checker, alias)
+  final def addCheck(checker: EnvironmentChecker[? <: CheckerProps], alias: String) = {
+    checkers += RegisteredChecker(checker, Some(alias))
+  }
+
+  final def addCheck(checker: EnvironmentChecker[? <: CheckerProps]) = {
+    checkers += RegisteredChecker(checker, None)
   }
 
 
@@ -59,7 +63,7 @@ abstract class AlvariumEngineBuilder {
       engineHasher
     )
 
-    new DefaultAlvariumEngine(config)
+    DefaultAlvariumEngine(config)
   }
 }
 
