@@ -7,13 +7,11 @@ import com.alvarium.serialisation.{AnnotationBundleSerializer, JsoniterSerialize
 import com.alvarium.stream.{DataStream, MosquittoDataStream}
 
 import java.security.MessageDigest
-import java.util.concurrent.{Executor, Executors}
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class AlvariumEngineBuilder {
   val stream: StreamType = StreamType.None
-  val executor: Executor = Executors.newVirtualThreadPerTaskExecutor()
   val serializer: SerializerType = SerializerType.Jsoniter()
   val signer: SigningType
   val hasher: HasherType = HasherType.MessageDigest("SHA-256")
@@ -27,10 +25,8 @@ abstract class AlvariumEngineBuilder {
 
 
   final def build(): AlvariumEngine = {
-    given ec: ExecutionContext = ExecutionContext.fromExecutor(executor)
-
-    def anonymousStream(f: Array[Byte] => Future[Unit]): DataStream = new DataStream {
-      override def send(data: Array[Byte]): Future[Unit] = f(data)
+    def anonymousStream(f: Array[Byte] => ExecutionContext ?=> Future[Unit]): DataStream = new DataStream {
+      override def send(data: Array[Byte])(using ExecutionContext): Future[Unit] = f(data)
 
       override def close(): Unit = ()
     }
@@ -38,7 +34,7 @@ abstract class AlvariumEngineBuilder {
     val engineStream = stream match
       case cfg: StreamType.Mqtt => MosquittoDataStream(cfg)
       case StreamType.Custom(stream) => stream
-      case StreamType.StreamFunction(f) => anonymousStream(f)
+      case StreamType.Function(f) => anonymousStream(f)
       case StreamType.None => anonymousStream(_ => Future.unit)
 
     val engineSerializer: AnnotationBundleSerializer = serializer match
@@ -47,6 +43,7 @@ abstract class AlvariumEngineBuilder {
 
     val engineSigner = signer match
       case SigningType.Ed25519(privateKey, keepSignerInMemory) => new Ed25519Signer(privateKey, keepSignerInMemory)
+      case SigningType.Custom(signer) => signer
 
     val engineHasher: Hasher = hasher match
       case HasherType.MessageDigest(algorithm) => (data: Array[Byte]) => {
@@ -57,7 +54,6 @@ abstract class AlvariumEngineBuilder {
     val config = EngineConfig(
       checkers.toArray,
       engineStream,
-      executor,
       engineSerializer,
       engineSigner,
       engineHasher

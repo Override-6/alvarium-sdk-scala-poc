@@ -1,5 +1,7 @@
 package com.alvarium.checker
 
+import zio.Task
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.{ClassTag, classTag}
 
@@ -15,6 +17,6 @@ object Checker {
 
 trait EnvironmentChecker[-P <: CheckerProps] {
 
-  def test(props: P)(using ExecutionContext): Future[Boolean]
+  def test(props: P): Task[Boolean]
 
 }
