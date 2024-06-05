@@ -1,7 +1,5 @@
 package com.alvarium.stream
 
-import zio.Task
-
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DataStream extends AutoCloseable {

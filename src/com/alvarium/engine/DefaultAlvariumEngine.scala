@@ -15,26 +15,13 @@ class DefaultAlvariumEngine(config: EngineConfig) extends AlvariumEngine {
 
   import config.*
 
-  override def annotate(actionKind: AlvariumActionKind, data: Array[Byte], props: (CheckerPropsBounds[Any], CheckerProps)*): AnnotationAction = {
+  override def annotate(actionKind: AlvariumActionKind, data: Array[Byte], props: (CheckerPropsBounds[Any], CheckerProps)*): CancelableFuture[SignedAnnotationBundle] = {
     Unsafe.unsafe(implicit unsafe => {
-
-      val promise = Promise.unsafe.make[Cause[Any], SignedAnnotationBundle](FiberId.None)
-      val annotate = for {
-        annotations <- createAnnotations(actionKind, data, props).tapErrorCause(promise.fail)
-        _ <- promise.succeed(annotations)
-      } yield annotations
-
-
-      val publish = for {
-        annotations <- promise.await(Trace.empty)
+      runToFuture(for {
+        annotations <- createAnnotations(actionKind, data, props)
         serialized = bundleSerializer.serialize(annotations)
         _ <- ZIO.fromFuture(implicit ec => stream.send(serialized))
-      } yield ()
-
-      new AnnotationAction(
-        annotate = runToFuture(annotate),
-        publish = () => runToFuture(publish.catchAllCause(ZIO.logErrorCause(_)))
-      )
+      } yield annotations)
     })
   }
 
