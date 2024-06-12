@@ -63,3 +63,11 @@ The annotation is then performed asynchronously. You can blockingly await for th
 ```scala
 val annotations = Await.result(future, 5.seconds) //returns the bundle that has been sent to the provided stream.
 ```
+
+# Performances
+
+Here is the comparison of performances enhancement compared to Alvarium Java SDK [Performances Report's Optimisations ideas](https://github.com/project-alvarium/alvarium-sdk-java/files/15496199/Alvarium_Performances_Report.pdf)
+
+![img.png](doc/bench1.png)
+
+![img.png](doc/bench2.png)
